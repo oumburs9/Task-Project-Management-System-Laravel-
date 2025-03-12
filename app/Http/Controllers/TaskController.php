@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\Project;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -19,13 +20,19 @@ class TaskController extends Controller
             $query->where('priority', $request->priority);
         }
 
+        // Apply project filter if selected
+        if ($request->has('project_id') && !empty($request->project_id)) {
+            $query->where('project_id', $request->project_id);
+        }
+
         $tasks = $query->get();
+        $projects = Project::all(); // Fetch all projects
 
         // Get the dynamic range of priorities
         $minPriority = Task::min('priority') ?? 1; // Default to 1 if no tasks exist
         $maxPriority = Task::max('priority') ?? 10; // Default to 10 if no tasks exist
 
-        return view('tasks.index', compact('tasks', 'minPriority', 'maxPriority'));
+        return view('tasks.index', compact('tasks', 'projects', 'minPriority', 'maxPriority'));
     }
 
 
@@ -34,8 +41,8 @@ class TaskController extends Controller
      */
     public function create()
     {
-        return view('tasks.create');
-
+        $projects = Project::all();
+        return view('tasks.create', compact('projects'));
     }
 
     /**
@@ -46,12 +53,12 @@ class TaskController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'priority' => 'required|integer|min:1',
+            'project_id' => 'nullable|exists:projects,id'
         ]);
 
         Task::create($request->all());
 
         return redirect()->route('tasks.index')->with('success', 'Task created successfully!');
-
     }
 
     /**
@@ -59,7 +66,8 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
-        return view('tasks.edit', compact('task'));
+        $projects = Project::all();
+        return view('tasks.edit', compact('task', 'projects'));
     }
 
     /**
@@ -70,6 +78,7 @@ class TaskController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'priority' => 'required|integer|min:1',
+            'project_id' => 'nullable|exists:projects,id'
         ]);
 
         $task->update($request->all());
@@ -77,9 +86,8 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');
     }
 
-
     /**
-     * Reorder the tasks
+     * Reorder the tasks.
      */
     public function reorder(Request $request)
     {

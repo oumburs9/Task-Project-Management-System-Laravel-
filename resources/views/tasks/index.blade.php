@@ -5,16 +5,16 @@
     <h2>Task List</h2>
 
 
- <!-- Priority Filter Form -->
+<!-- Project Filter Form -->
 <form method="GET" action="{{ route('tasks.index') }}" class="mb-3">
-    <label for="priority">Filter by Priority:</label>
-    <select name="priority" id="priority" class="form-control d-inline w-auto">
-        <option value="">All</option>
-        @for ($i = $minPriority; $i <= $maxPriority; $i++)
-            <option value="{{ $i }}" {{ request('priority') == $i ? 'selected' : '' }}>
-                Priority {{ $i }}
+    <label for="project_id">Filter by Project:</label>
+    <select name="project_id" id="project_id" class="form-control d-inline w-auto">
+        <option value="">All Projects</option>
+        @foreach ($projects as $project)
+            <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>
+                {{ $project->name }}
             </option>
-        @endfor
+        @endforeach
     </select>
     <button type="submit" class="btn btn-primary btn-sm">Filter</button>
 </form>

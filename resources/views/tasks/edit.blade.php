@@ -9,6 +9,18 @@
         @method('PUT')
 
         <div class="form-group">
+            <label for="project_id">Project:</label>
+            <select name="project_id" class="form-control">
+                <option value="">Select a Project</option>
+                @foreach ($projects as $project)
+                    <option value="{{ $project->id }}" {{ $task->project_id == $project->id ? 'selected' : '' }}>
+                        {{ $project->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group">
             <label for="name">Task Name:</label>
             <input type="text" name="name" class="form-control" value="{{ $task->name }}" required>
         </div>
